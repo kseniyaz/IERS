@@ -75,8 +75,8 @@ D(:)=int (al(:,7))
 Om(:)= int (al(:,8))
 
 do i=1,1600,1
-   moon(i) = F(i)+D(i)+Om(i)
-   sun(i) = F(i) + Om(i)
+   moon(i) = F(i)+Om(i) 
+   sun(i) = F(i) + Om(i) +D(i)
    omega(i) = Om(i)
    w(i) = D(i)+F(i)-ls(i)
 enddo
@@ -109,10 +109,10 @@ omega(:)=int (b(:,3))
 w(:)=int (b(:,4))
 
 do i=1,n,1
-   l(i) = 0 !я хз что тут
-   ls(i) =  moon(i) - omega(i) - w(i)
+   l(i) = moon(i) - omega(i) - w(i)
+   ls(i) =  sun(i) - omega(i) - w(i)
    F(i) = moon(i)-omega(i)
-   D(i) = moon(i)-sun(i)
+   D(i) = - moon(i) + sun(i)
    Om(i) = omega(i)
 enddo
 
