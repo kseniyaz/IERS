@@ -1,11 +1,12 @@
 program oldctonew
 implicit none
 
-integer i,n,m,ier,ninp,var,k
+integer i,Numstr,Numcol,ier,ninp,var,k,Numpl,Numampl
 real nl, nls, nF, nD, nOm, pi,q
-real(8), allocatable, dimension(:,:) ::  al , b
-real(8), allocatable, dimension(:) ::  P1
-integer, allocatable, dimension(:) ::  l,ls,F,D,Om
+real, allocatable, dimension(:,:) ::  al , b, ampl
+real, allocatable, dimension(:) ::  P1
+integer, allocatable, dimension(:,:) ::  pl
+integer, allocatable, dimension(:) ::  l,ls,F,D,Om, ind
 integer, allocatable, dimension(:) ::  moon, sun, omega, w
 
 pi= 4* atan(1.0)
@@ -17,37 +18,44 @@ nD=1602961601.2090
 nOm=-6962890.5431
 
 !кол-во столбцов и строк
-n=1600
-m=17
-k=4
+Numstr=1600
+Numcol=17
+k=5
+Numampl=2
+Numpl=9
 
 
+allocate(ampl(Numstr,Numampl), stat=ier)
+if (ier/=0) stop
+allocate(pl(Numstr,Numpl), stat=ier)
+if (ier/=0) stop
+allocate(moon(Numstr), stat=ier)
+if (ier/=0) stop
+allocate(sun(Numstr), stat=ier)
+if (ier/=0) stop
+allocate(omega(Numstr), stat=ier)
+if (ier/=0) stop
+allocate(w(Numstr), stat=ier)
+if (ier/=0) stop
+allocate(ind(Numstr), stat=ier)
+if (ier/=0) stop
+allocate(al(Numstr,Numcol), stat=ier)
+if (ier/=0) stop
+allocate(b(Numstr,k), stat=ier)
+if (ier/=0) stop
 
-allocate(moon(n), stat=ier)
-if (ier/=0) stop
-allocate(sun(n), stat=ier)
-if (ier/=0) stop
-allocate(omega(n), stat=ier)
-if (ier/=0) stop
-allocate(w(n), stat=ier)
-if (ier/=0) stop
-allocate(al(n,m), stat=ier)
-if (ier/=0) stop
-allocate(b(n,k), stat=ier)
-if (ier/=0) stop
 
-
-allocate(l(n), stat=ier)
+allocate(l(Numstr), stat=ier)
 if (ier/=0) stop
-allocate(ls(n), stat=ier)
+allocate(ls(Numstr), stat=ier)
 if (ier/=0) stop
-allocate(F(n), stat=ier)
+allocate(F(Numstr), stat=ier)
 if (ier/=0) stop
-allocate(D(n), stat=ier)
+allocate(D(Numstr), stat=ier)
 if (ier/=0) stop
-allocate(Om(n), stat=ier)
+allocate(Om(Numstr), stat=ier)
 if (ier/=0) stop
-allocate(P1(n), stat=ier)
+allocate(P1(Numstr), stat=ier)
 if (ier/=0) stop
 
 
@@ -63,18 +71,21 @@ open(11,file='tab5_2a.txt',status='old',form='formatted')
 open(12,file='tab5_2a.new.txt', form='formatted')
 
 
-   do i=1,n
+   do i=1,Numstr
       read(11,*) al(i,:)
 !      write(*,*) al(i,:)
    enddo
 
+ind(:)= int (al(:,1))
+ampl(:,:)= al(:, 2:3)
+pl(:,:)=  int (al( :, 9:))
 l(:)= int (al(:,4))
 ls(:)=int (al(:,5))
 F(:)=int (al(:,6))
 D(:)=int (al(:,7))
 Om(:)= int (al(:,8))
 
-do i=1,1600,1
+do i=1,Numstr,1
    moon(i) = F(i)+Om(i) 
    sun(i) = F(i) + Om(i) +D(i)
    omega(i) = Om(i)
@@ -83,14 +94,17 @@ enddo
 
 
 
-do i=1,n
+do i=1,Numstr
    P1(i)=(pi*2*206265*100)/((l(i)*nl+ls(i)*nls+F(i)*nF+D(i)*nD+Om(i)*nOm))
 enddo
 
 
-do i=1,n
-  write(12,*) moon(i), sun(i), omega(i), w(i)
+do i=1,Numstr
+  write(12,55) ind(i),  ampl(i,:) , moon(i), sun(i), omega(i), w(i), pl(i,:)
 enddo
+
+
+55 format(i5,2f15.2,13i5)
 
 case(2)
 
@@ -98,7 +112,7 @@ open(22,file='tab5_2a.new.txt',status= 'old', form='formatted')
 open(13,file='tab5_2a.test.txt',form='formatted')
 
 
-   do i=1,n,1
+   do i=1,Numstr,1
       read(22,*) b(i,:)
 !      write(*,*) al(i,:)
    enddo
@@ -108,7 +122,7 @@ sun(:)=int (b(:,2))
 omega(:)=int (b(:,3))
 w(:)=int (b(:,4))
 
-do i=1,n,1
+do i=1,Numstr,1
    l(i) = moon(i) - omega(i) - w(i)
    ls(i) =  sun(i) - omega(i) - w(i)
    F(i) = moon(i)-omega(i)
@@ -116,7 +130,7 @@ do i=1,n,1
    Om(i) = omega(i)
 enddo
 
-do i=1,n
+do i=1,Numstr
   write(13,*) l(i), ls(i), F(i), D(i), Om(i)
 enddo
 
