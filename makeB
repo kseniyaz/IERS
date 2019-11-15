@@ -1,0 +1,8 @@
+default:  main
+	./oldtonewB
+main: oldcoortonewB.o
+	gfortran  oldcoortonewB.o -o oldtonewB
+oldcoortonewB.o: oldcoortonewB.f95
+	gfortran -c oldcoortonewB.f95
+clean:
+	rm -rf *.o  main
