@@ -7,7 +7,7 @@ real, allocatable, dimension(:,:) ::  al , b, ampl
 real, allocatable, dimension(:) ::  P1
 integer, allocatable, dimension(:,:) ::  pl
 integer, allocatable, dimension(:) ::  l,ls,F,D,Om, ind
-integer, allocatable, dimension(:) ::  moon, sun, omega, w
+integer, allocatable, dimension(:) ::  moon, sun, omega, w_sun, w_moon
 
 pi= 4* atan(1.0)
 
@@ -35,13 +35,15 @@ allocate(sun(Numstr), stat=ier)
 if (ier/=0) stop
 allocate(omega(Numstr), stat=ier)
 if (ier/=0) stop
-allocate(w(Numstr), stat=ier)
+allocate(w_moon(Numstr), stat=ier)
+if (ier/=0) stop
+allocate(w_sun(Numstr), stat=ier)
 if (ier/=0) stop
 allocate(ind(Numstr), stat=ier)
 if (ier/=0) stop
 allocate(al(Numstr,Numcol), stat=ier)
 if (ier/=0) stop
-allocate(b(Numstr,(Numcol-1)), stat=ier)
+allocate(b(Numstr,(Numcol)), stat=ier)
 if (ier/=0) stop
 
 
@@ -86,10 +88,11 @@ D(:)=int (al(:,7))
 Om(:)= int (al(:,8))
 
 do i=1,Numstr,1
-   moon(i) = F(i)+Om(i) 
-   sun(i) = F(i) + Om(i) +D(i)
-   omega(i) = Om(i)
-   w(i) = D(i)+F(i)-ls(i)
+   moon(i) = F(i)+D(i)+l(i)
+   sun(i) = ls(i) -D(i)
+   omega(i) = Om(i) - F(i) - l(i)
+   w_moon(i) = -l(i)
+   w_sun(i)= -ls(i)
 enddo
 
 
@@ -100,11 +103,11 @@ enddo
 
 
 do i=1,Numstr
-  write(12,55) ind(i),  ampl(i,:) , moon(i), sun(i), omega(i), w(i), pl(i,:)
+  write(12,55) ind(i),  ampl(i,:) , moon(i), sun(i), omega(i), w_moon(i), w_sun(i), pl(i,:)
 enddo
 
 
-55 format(i5,2f15.2,13i5)
+55 format(i5,2f15.2,14i5)
 
 case(2)
 
@@ -120,15 +123,17 @@ open(13,file='tab5_2b.test.txt',form='formatted')
 moon(:)= int (b(:,4))
 sun(:)=int (b(:,5))
 omega(:)=int (b(:,6))
-w(:)=int (b(:,7))
+w_moon(:)=int (b(:,7))
+w_sun(:)=int (b(:,8))
 
 do i=1,Numstr,1
-   l(i) = moon(i) - omega(i) - w(i)
-   ls(i) =  sun(i) - omega(i) - w(i)
-   F(i) = moon(i)-omega(i)
-   D(i) = - moon(i) + sun(i)
-   Om(i) = omega(i)
+   l(i) = -w_moon(i)
+   ls(i) =  -w_sun(i)
+   F(i) = moon(i)+ sun(i) + w_moon(i) + w_sun(i)
+   D(i) = -sun(i) - w_sun(i)
+   Om(i) = moon(i) + sun(i) + omega(i) + w_sun(i)
 enddo
+
 
 do i=1,Numstr
   write(13,*) l(i), ls(i), F(i), D(i), Om(i)
