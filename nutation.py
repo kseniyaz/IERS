@@ -30,8 +30,6 @@ while tt <= 2458845:
 	for i in range(0, len(coeff_x)):
 		arg_x = lambda_moon*coeff_x[i][3] + lambda_sun*coeff_x[i][4] + Om*coeff_x[i][5] + w_moon*coeff_x[i][6] + w_sun*coeff_x[i][7]
 		X += coeff_x[i][1] * m.sin(arg_x) + coeff_x[i][2] * m.cos(arg_x)
-		if t == 0:
-			arg_xm.append(arg_x)
 	for j in range(0, len(coeff_y)):
 		arg_y = lambda_moon*coeff_y[j][3] + lambda_sun*coeff_y[j][4] + Om*coeff_y[j][5] + w_moon*coeff_y[j][6] + w_sun*coeff_y[j][7]
 		Y += coeff_y[j][1] * m.sin(arg_y) + coeff_y[j][2] * m.cos(arg_y)
